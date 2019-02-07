@@ -11,6 +11,10 @@
   name = "github.com/sirupsen/logrus"
   version = "1.1.1"
 
-[[constraint]]
+[[override]]
   name = "github.com/pkg/errors"
   version = "0.8.0"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/bakatz/echo-logrusmiddleware"

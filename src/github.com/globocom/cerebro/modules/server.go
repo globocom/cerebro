@@ -24,8 +24,7 @@ func Init() {
 	server.Debug = settings.Debug
 	server.Logger = logger.Logger{Logger: log.StandardLogger()}
 
-	// TODO: Change to es
-	client := NewMongoClient(settings)
+	client := NewESClient(settings)
 	defer client.Close()
 
 	createEndpoints(server, settings, client)
@@ -41,4 +40,8 @@ func createEndpoints(server *echo.Echo, settings Settings, client PersistenceCli
 	server.GET("/", handler.Index)
 	server.GET("/healthcheck", handler.Healthcheck)
 	server.File("/favicon.ico", "/dev/null")
+}
+
+func bindMiddlewares(server *echo.Echo) {
+	server.Use(logger.Hook())
 }
