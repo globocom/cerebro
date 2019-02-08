@@ -13,7 +13,7 @@ install:
 	@cd $(PROJECT_PATH) && dep ensure && go install
 
 es:
-	@docker-compose -f "docker-compose.yml" up -d --build
+	@docker-compose -f "docker-compose.yml" up -d --build --scale elasticsearch_data=2
 
 es_logs:
 	@docker-compose logs -f
