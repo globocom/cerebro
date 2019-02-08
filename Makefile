@@ -12,7 +12,17 @@ dep_install:
 install:
 	@cd $(PROJECT_PATH) && dep ensure && go install
 
-run: install
+es:
+	@docker-compose -f "docker-compose.yml" up -d --build --scale elasticsearch_data=2
+
+es_logs:
+	@docker-compose logs -f
+
+es_down:
+	@curl -X DELETE http://localhost:9200/_all -H 'cache-control: no-cache'
+	@docker-compose down
+
+run: install es_down es
 	./bin/cerebro
 
 test: install

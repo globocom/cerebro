@@ -1,0 +1,36 @@
+version: '3.6'
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.6.0
+    environment:
+      - cluster.name=cerebro-cluster
+      - bootstrap.memory_lock=true
+      - "node.master=true"
+      - "xpack.monitoring.exporters.my_local_exporter.type=local"
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - 9200:9200
+    networks:
+      - esnet
+
+  elasticsearch_data:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.6.0
+    environment:
+      - cluster.name=cerebro-cluster
+      - bootstrap.memory_lock=true
+      - "node.master=false"
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "discovery.zen.ping.unicast.hosts=elasticsearch"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    networks:
+      - esnet
+
+networks:
+  esnet:
