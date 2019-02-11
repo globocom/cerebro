@@ -4,9 +4,11 @@ ROOT_PATH=$(shell pwd)
 
 PROJECT_PATH=$(ROOT_PATH)/src/github.com/globocom/cerebro
 
-export GOPATH=$(ROOT_PATH)
+export GOPATH := $(ROOT_PATH)
+export PATH := $(GOPATH)/bin/:$(PATH)
 
 dep:
+	@mkdir -p $(GOPATH)/bin/
 	@curl -L -s https://github.com/golang/dep/releases/download/v0.5.0/dep-linux-amd64 -o $(GOPATH)/bin/dep
 	@chmod +x $(GOPATH)/bin/dep
 
