@@ -1,15 +1,25 @@
-.PHONY: install run test deploy deploy_prod dep_install
+.PHONY: ci_dep install run test dep_install bin
 
 ROOT_PATH=$(shell pwd)
 
 PROJECT_PATH=$(ROOT_PATH)/src/github.com/globocom/cerebro
 
-export GOPATH=$(ROOT_PATH)
+export GOPATH := $(ROOT_PATH)
+export PATH := $(GOPATH)/bin/:$(PATH)
+
+test_dep:
+	@go get github.com/jstemmer/go-junit-report
+
+ci_dep: test_dep
+	@mkdir -p $(GOPATH)/bin/
+	@curl -L -s https://github.com/golang/dep/releases/download/v0.5.0/dep-linux-amd64 -o $(GOPATH)/bin/dep
+	@chmod +x $(GOPATH)/bin/dep
+
 
 dep_install:
 	@cd $(PROJECT_PATH) && dep ensure -add $(DEP)
 
-install:
+install: test_dep
 	@cd $(PROJECT_PATH) && dep ensure && go install
 
 es:
@@ -31,12 +41,6 @@ test: install
 install_linux:
 	@cd $(PROJECT_PATH) && GOOS=linux GOARCH=amd64 go install
 
-prepare_deploy:
+bin: install
 	@cp -f $(ROOT_PATH)/bin/linux_amd64/cerebro $(ROOT_PATH)/deploy/
 	@chmod a+x $(ROOT_PATH)/deploy/cerebro
-
-deploy_prod: install_linux prepare_deploy
-	@cd $(ROOT_PATH)/deploy/ && tsuru app-deploy -a cerebro .
-
-deploy: install_linux prepare_deploy
-	@cd $(ROOT_PATH)/deploy/ && tsuru app-deploy -a cerebro-qa .

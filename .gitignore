@@ -19,3 +19,5 @@ bin
 
 # Modules
 vendor
+src/*
+!src/github.com/cerebro/*
