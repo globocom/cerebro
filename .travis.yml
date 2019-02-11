@@ -1,6 +1,6 @@
 language: go
 
-before_install: make dep
+before_install: make ci_dep
 
 go:
 - 1.x
