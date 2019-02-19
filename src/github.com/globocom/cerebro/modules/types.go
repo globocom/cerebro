@@ -11,6 +11,12 @@ type Healthcheck struct {
 	Err    string `json:"err,omitempty"`
 }
 
+// Attribute struct
+type Attribute struct {
+	Name string `json:"name"`
+	Type string `json:"type"`
+}
+
 // User struct
 type User struct {
 	Segments []string `json:"segments" bson:"segments"`

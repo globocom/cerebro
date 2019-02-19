@@ -1,6 +1,8 @@
 package modules
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -46,6 +48,7 @@ func TestHealthcheck(t *testing.T) {
 		t.Errorf("Expected Status Working, but was: %s", rec.Body.String())
 	}
 }
+
 func TestIndex(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader("{}"))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
@@ -61,5 +64,38 @@ func TestIndex(t *testing.T) {
 
 	if expectedCode != gotCode {
 		t.Errorf("Index should always be 200 when application is up.")
+	}
+}
+
+func TestGetAttribute(t *testing.T) {
+	req := httptest.NewRequest(http.MethodGet, "/attribute", nil)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSONCharsetUTF8)
+	rec := httptest.NewRecorder()
+	c := echo.New().NewContext(req, rec)
+
+	settings, _ := LoadSettings()
+	client := new(MockedPersistenceClient)
+
+	NewHTTPHandler(settings, client).GetAttribute(c)
+
+	fmt.Printf("teste - %s\n", rec.Body.String())
+	var attribute Attribute
+	json.NewDecoder(rec.Body).Decode(&attribute)
+
+	expectedCode := 200
+	gotCode := rec.Code
+	expectedName := "age"
+	gotName := attribute.Name
+	expectedType := "string"
+	gotType := attribute.Type
+
+	if expectedCode != gotCode {
+		t.Errorf("Healthcheck should always be 200 when application is up.")
+	}
+	if gotName != expectedName {
+		t.Errorf("Expected name age, but was: %s", gotName)
+	}
+	if gotType != expectedType {
+		t.Errorf("Expected type string, but was: %s", gotType)
 	}
 }
