@@ -1,6 +1,7 @@
 package modules
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -58,7 +59,21 @@ func (suite *HandlerTestSuite) TestGetAttribute() {
 	body, err := ioutil.ReadAll(resp.Body)
 	assert.Nil(suite.T(), err)
 	suite.Equal(200, resp.StatusCode)
-	suite.Equal(`{"name":"fakeAttribute","type":"string"}
+	suite.Equal(`{"name":"fakeAttribute","type":"int"}
+`, string(body))
+}
+
+func (suite *HandlerTestSuite) TestPostAttribute() {
+	var jsonStr = []byte(`{"name":"caio","type":"string"}`)
+	req, err := http.NewRequest(http.MethodPost, "http://localhost:8088/attribute", bytes.NewBuffer(jsonStr))
+	assert.Nil(suite.T(), err)
+	resp, err := suite.client.Do(req)
+	assert.Nil(suite.T(), err)
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	assert.Nil(suite.T(), err)
+	suite.Equal(200, resp.StatusCode)
+	suite.Equal(`{"name":"caio","type":"string"}
 `, string(body))
 }
 
