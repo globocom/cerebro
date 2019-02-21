@@ -23,10 +23,18 @@ func (h *HTTPHandler) Healthcheck(context echo.Context) error {
 	return context.JSON(http.StatusOK, Healthcheck{Status: "WORKING"})
 }
 
-// GET /attribute/id
+// GET /attribute
+func (h *HTTPHandler) GetAllAttributes(context echo.Context) error {
+	return context.JSON(http.StatusNotFound, `"status":"RETORNA O NOME DE TODOS OS ATRIBUTOS"`)
+}
+
+// GET /attribute/attributeName
 func (h *HTTPHandler) GetAttribute(context echo.Context) error {
 	name := context.Param("name")
-	return context.JSON(http.StatusOK, Attribute{Name: name, Type: "int"})
+	if name == "fakeAttribute" {
+		return context.JSON(http.StatusOK, Attribute{Name: name, Type: "int"})
+	}
+	return context.JSON(http.StatusNotFound, `"status":"MISS"`)
 }
 
 // POST /attribute
@@ -36,6 +44,31 @@ func (h *HTTPHandler) PostAttribute(context echo.Context) error {
 	err := decoder.Decode(&a)
 	if err != nil {
 		panic(err)
+	}
+	return context.JSON(http.StatusOK, Attribute{Name: a.Name, Type: a.Type})
+}
+
+// PUT /attribute
+func (h *HTTPHandler) UpdateAttribute(context echo.Context) error {
+	decoder := json.NewDecoder(context.Request().Body)
+	var a Attribute
+	a.Name = "fakeAttribute"
+	a.Type = "int"
+	err := decoder.Decode(&a)
+	if err != nil {
+		panic(err)
+	}
+	return context.JSON(http.StatusOK, Attribute{Name: a.Name, Type: a.Type})
+}
+
+// DELETE /attribute/attributeName
+func (h *HTTPHandler) DeleteAttribute(context echo.Context) error {
+	name := context.Param("name")
+	var a Attribute
+	a.Name = "fakeAttribute"
+	a.Type = "string"
+	if a.Name == name {
+		a = Attribute{}
 	}
 	return context.JSON(http.StatusOK, Attribute{Name: a.Name, Type: a.Type})
 }

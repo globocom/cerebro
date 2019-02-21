@@ -64,7 +64,7 @@ func (suite *HandlerTestSuite) TestGetAttribute() {
 }
 
 func (suite *HandlerTestSuite) TestPostAttribute() {
-	var jsonStr = []byte(`{"name":"caio","type":"string"}`)
+	var jsonStr = []byte(`{"name":"fakeAttribute","type":"string"}`)
 	req, err := http.NewRequest(http.MethodPost, "http://localhost:8088/attribute", bytes.NewBuffer(jsonStr))
 	assert.Nil(suite.T(), err)
 	resp, err := suite.client.Do(req)
@@ -73,7 +73,34 @@ func (suite *HandlerTestSuite) TestPostAttribute() {
 	body, err := ioutil.ReadAll(resp.Body)
 	assert.Nil(suite.T(), err)
 	suite.Equal(200, resp.StatusCode)
-	suite.Equal(`{"name":"caio","type":"string"}
+	suite.Equal(`{"name":"fakeAttribute","type":"string"}
+`, string(body))
+}
+
+func (suite *HandlerTestSuite) TestUpdateAttribute() {
+	var jsonStr = []byte(`{"name":"fakeAttribute","type":"string"}`)
+	req, err := http.NewRequest(http.MethodPut, "http://localhost:8088/attribute", bytes.NewBuffer(jsonStr))
+	assert.Nil(suite.T(), err)
+	resp, err := suite.client.Do(req)
+	assert.Nil(suite.T(), err)
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	assert.Nil(suite.T(), err)
+	suite.Equal(200, resp.StatusCode)
+	suite.Equal(`{"name":"fakeAttribute","type":"string"}
+`, string(body))
+}
+
+func (suite *HandlerTestSuite) TestDeleteAttribute() {
+	req, err := http.NewRequest(http.MethodDelete, "http://localhost:8088/attribute/fakeAttribute", nil)
+	assert.Nil(suite.T(), err)
+	resp, err := suite.client.Do(req)
+	assert.Nil(suite.T(), err)
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	assert.Nil(suite.T(), err)
+	suite.Equal(200, resp.StatusCode)
+	suite.Equal(`{"name":"","type":""}
 `, string(body))
 }
 

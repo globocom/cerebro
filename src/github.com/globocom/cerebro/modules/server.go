@@ -41,6 +41,8 @@ func createEndpoints(server *echo.Echo, settings Settings, client PersistenceCli
 	server.GET("/healthcheck", handler.Healthcheck)
 	server.GET("/attribute/:name", handler.GetAttribute)
 	server.POST("/attribute", handler.PostAttribute)
+	server.PUT("/attribute", handler.UpdateAttribute)
+	server.DELETE("/attribute/:name", handler.DeleteAttribute)
 	server.File("/favicon.ico", "/dev/null")
 }
 
