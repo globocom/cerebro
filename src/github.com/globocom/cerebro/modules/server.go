@@ -9,7 +9,7 @@ import (
 )
 
 // Init initializes current app.
-func Init() {
+func Init(fn func(settings Settings) PersistenceClient) {
 	settings, err := LoadSettings()
 	log.Debug("Current configuration:", settings)
 
@@ -24,7 +24,7 @@ func Init() {
 	server.Debug = settings.Debug
 	server.Logger = logger.Logger{Logger: log.StandardLogger()}
 
-	client := NewESClient(settings)
+	client := fn(settings)
 	defer client.Close()
 
 	createEndpoints(server, settings, client)
@@ -38,7 +38,14 @@ func createEndpoints(server *echo.Echo, settings Settings, client PersistenceCli
 	handler := NewHTTPHandler(settings, client)
 
 	server.GET("/", handler.Index)
+
 	server.GET("/healthcheck", handler.Healthcheck)
+
+	server.GET("/attribute/:name", handler.GetAttribute)
+	server.POST("/attribute", handler.PostAttribute)
+	server.PUT("/attribute/:name", handler.UpdateAttribute)
+	server.DELETE("/attribute/:name", handler.DeleteAttribute)
+
 	server.File("/favicon.ico", "/dev/null")
 }
 

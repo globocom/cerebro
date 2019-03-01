@@ -5,10 +5,16 @@ type Version struct {
 	Version string `json:"version"`
 }
 
-// Healthcheck route response
-type Healthcheck struct {
+// Status struct
+type Status struct {
 	Status string `json:"status"`
 	Err    string `json:"err,omitempty"`
+}
+
+// Attribute struct
+type Attribute struct {
+	Name string `json:"name"`
+	Type string `json:"type"`
 }
 
 // User struct
