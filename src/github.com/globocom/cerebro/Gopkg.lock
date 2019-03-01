@@ -98,6 +98,8 @@
   packages = [
     "assert",
     "mock",
+    "require",
+    "suite",
   ]
   pruneopts = ""
   revision = "ffdc059bfe9ce6a4e144ba849dbedead332c6053"
@@ -149,8 +151,11 @@
     "github.com/bakatz/echo-logrusmiddleware",
     "github.com/kelseyhightower/envconfig",
     "github.com/labstack/echo",
+    "github.com/labstack/gommon/log",
     "github.com/sirupsen/logrus",
+    "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/mock",
+    "github.com/stretchr/testify/suite",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

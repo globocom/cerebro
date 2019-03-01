@@ -18,19 +18,27 @@ type HandlerTestSuite struct {
 }
 
 func (suite *HandlerTestSuite) SetupSuite() {
-	go Init()
+	go Init(NewMockedClient)
 	suite.client = &http.Client{
 		Timeout: 1 * time.Second,
 	}
 }
 
+func (suite *HandlerTestSuite) AfterTest() {
+	Cliente = &MockedPersistenceClient{}
+}
+
 func (suite *HandlerTestSuite) TestHealthcheck() {
+
 	req, err := http.NewRequest(http.MethodGet, "http://localhost:8088/healthcheck", nil)
 	assert.Nil(suite.T(), err)
+
 	resp, err := suite.client.Do(req)
 	assert.Nil(suite.T(), err)
 	defer resp.Body.Close()
+
 	body, err := ioutil.ReadAll(resp.Body)
+
 	assert.Nil(suite.T(), err)
 	suite.Equal(200, resp.StatusCode)
 	suite.Equal(`{"status":"WORKING"}
@@ -38,12 +46,16 @@ func (suite *HandlerTestSuite) TestHealthcheck() {
 }
 
 func (suite *HandlerTestSuite) TestIndex() {
+
 	req, err := http.NewRequest(http.MethodGet, "http://localhost:8088/", nil)
 	assert.Nil(suite.T(), err)
+
 	resp, err := suite.client.Do(req)
 	assert.Nil(suite.T(), err)
 	defer resp.Body.Close()
+
 	body, err := ioutil.ReadAll(resp.Body)
+
 	assert.Nil(suite.T(), err)
 	suite.Equal(200, resp.StatusCode)
 	suite.Equal(fmt.Sprintf(`{"version":"%s"}
@@ -51,56 +63,84 @@ func (suite *HandlerTestSuite) TestIndex() {
 }
 
 func (suite *HandlerTestSuite) TestGetAttribute() {
+
+	a := &Attribute{"fakeAttribute", "int"}
+	Cliente.On("GetAttribute", "fakeAttribute").Return(a, nil)
+
 	req, err := http.NewRequest(http.MethodGet, "http://localhost:8088/attribute/fakeAttribute", nil)
 	assert.Nil(suite.T(), err)
+
 	resp, err := suite.client.Do(req)
 	assert.Nil(suite.T(), err)
 	defer resp.Body.Close()
+
 	body, err := ioutil.ReadAll(resp.Body)
 	assert.Nil(suite.T(), err)
+
 	suite.Equal(200, resp.StatusCode)
 	suite.Equal(`{"name":"fakeAttribute","type":"int"}
 `, string(body))
 }
 
 func (suite *HandlerTestSuite) TestPostAttribute() {
+
+	Cliente.On("AddAttribute", "fakeAttribute", "string").Return(nil)
+
 	var jsonStr = []byte(`{"name":"fakeAttribute","type":"string"}`)
 	req, err := http.NewRequest(http.MethodPost, "http://localhost:8088/attribute", bytes.NewBuffer(jsonStr))
 	assert.Nil(suite.T(), err)
+
 	resp, err := suite.client.Do(req)
 	assert.Nil(suite.T(), err)
 	defer resp.Body.Close()
+
 	body, err := ioutil.ReadAll(resp.Body)
 	assert.Nil(suite.T(), err)
+
+	Cliente.AssertExpectations(suite.T())
 	suite.Equal(200, resp.StatusCode)
-	suite.Equal(`{"name":"fakeAttribute","type":"string"}
+	suite.Equal(`{"status":"CREATED"}
 `, string(body))
 }
 
 func (suite *HandlerTestSuite) TestUpdateAttribute() {
+
+	Cliente.On("UpdateAttribute", "fakeAttribute", "string").Return(nil)
+
 	var jsonStr = []byte(`{"name":"fakeAttribute","type":"string"}`)
-	req, err := http.NewRequest(http.MethodPut, "http://localhost:8088/attribute", bytes.NewBuffer(jsonStr))
+	req, err := http.NewRequest(http.MethodPut, "http://localhost:8088/attribute/fakeAttribute", bytes.NewBuffer(jsonStr))
 	assert.Nil(suite.T(), err)
+
 	resp, err := suite.client.Do(req)
 	assert.Nil(suite.T(), err)
 	defer resp.Body.Close()
+
 	body, err := ioutil.ReadAll(resp.Body)
 	assert.Nil(suite.T(), err)
+
+	Cliente.AssertExpectations(suite.T())
 	suite.Equal(200, resp.StatusCode)
-	suite.Equal(`{"name":"fakeAttribute","type":"string"}
+	suite.Equal(`{"status":"UPDATED"}
 `, string(body))
 }
 
 func (suite *HandlerTestSuite) TestDeleteAttribute() {
+
+	Cliente.On("DeleteAttribute", "fakeAttribute").Return(nil)
+
 	req, err := http.NewRequest(http.MethodDelete, "http://localhost:8088/attribute/fakeAttribute", nil)
 	assert.Nil(suite.T(), err)
+
 	resp, err := suite.client.Do(req)
 	assert.Nil(suite.T(), err)
 	defer resp.Body.Close()
+
 	body, err := ioutil.ReadAll(resp.Body)
 	assert.Nil(suite.T(), err)
+
+	Cliente.AssertExpectations(suite.T())
 	suite.Equal(200, resp.StatusCode)
-	suite.Equal(`{"name":"","type":""}
+	suite.Equal(`{"status":"DELETED"}
 `, string(body))
 }
 
