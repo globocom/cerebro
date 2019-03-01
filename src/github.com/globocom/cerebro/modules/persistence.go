@@ -6,6 +6,7 @@ type PersistenceClient interface {
 	AddAttribute(attributeName string, attributeType string) error
 	GetAttribute(attributeName string) (*Attribute, error)
 	DeleteAttribute(attributeName string) error
+	UpdateAttribute(attributeName string, attributeType string) error
 }
 
 // ESClient struct
